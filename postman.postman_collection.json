@@ -1,0 +1,678 @@
+{
+	"info": {
+		"_postman_id": "6322466d-6230-4721-88ca-398427fd22c6",
+		"name": "postman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31095445"
+	},
+	"item": [
+		{
+			"name": "Регистрация",
+			"item": [
+				{
+					"name": "Регистрация",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"// Проверка успешной регистрации\r",
+									"if (responseJson.success === true) {\r",
+									"    pm.test(\"Successful registration\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(200);\r",
+									"        pm.expect(responseJson.success).to.be.true;\r",
+									"        pm.expect(responseJson.message).to.equal(\"Success\");\r",
+									"        pm.expect(responseJson.token).to.exist;\r",
+									"    });\r",
+									"} else {\r",
+									"    // Проверка наличия ошибок в ответе\r",
+									"    pm.test(\"Error response\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(422);\r",
+									"        pm.expect(responseJson.success).to.be.false;\r",
+									"        pm.expect(responseJson.message).to.exist;\r",
+									"    });\r",
+									"\r",
+									"    // Проверка ошибки регистрации (электронная почта уже используется)\r",
+									"    pm.test(\"Email already in use\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(422);\r",
+									"        pm.expect(responseJson.message.email[0]).to.include(\"has already been taken\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Проверка ошибки валидации email\r",
+									"if (responseJson.message && responseJson.message.email) {\r",
+									"    pm.test(\"Email validation error\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(422);\r",
+									"        pm.expect(responseJson.message.email[0]).to.include(\"The email\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// Проверка ошибки валидации пароля\r",
+									"if (responseJson.message && responseJson.message.password) {\r",
+									"    pm.test(\"Password validation error\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(422);\r",
+									"        pm.expect(responseJson.message.password[0]).to.include(\"The password\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"\r",
+									"if (responseJson.message && responseJson.message.first_name) {\r",
+									"    pm.test(\"First name validation error\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(422);\r",
+									"        pm.expect(responseJson.message.first_name[0]).to.include(\"The first name\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"if (responseJson.message && responseJson.message.last_name) {\r",
+									"    pm.test(\"Last name validation error\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(422);\r",
+									"        pm.expect(responseJson.message.last_name[0]).to.include(\"The last name\");\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"nikitkaa@mail.ru\",\r\n    \"password\": \"QWEasd123\",\r\n    \"first_name\": \"Никита\",\r\n    \"last_name\": \"Скобелев\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}registration",
+							"host": [
+								"{{host}}registration"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Логин",
+			"item": [
+				{
+					"name": "Авторизация",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Сохраняем ответ в переменную responseJson\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.environment.set(\"token\", responseJson.token);\r",
+									"\r",
+									"// Проверка успешной авторизации\r",
+									"if (responseJson.success === true) {\r",
+									"    pm.test(\"Successful authorization\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(200);\r",
+									"        pm.expect(responseJson.success).to.be.true;\r",
+									"        pm.expect(responseJson.message).to.equal(\"Success\");\r",
+									"        pm.expect(responseJson.token).to.exist;\r",
+									"    });\r",
+									"} else {\r",
+									"    // Проверка наличия ошибок в ответе\r",
+									"    pm.test(\"Error login\", function () {\r",
+									"        pm.expect(pm.response.code).to.equal(401);\r",
+									"        pm.expect(responseJson.success).to.be.false;\r",
+									"        pm.expect(responseJson.message).to.exist;\r",
+									"    });\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"email\": \"admin@admin.ru\",\r\n \"password\": \"Qa1\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}authorization",
+							"host": [
+								"{{host}}authorization"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Файлы",
+			"item": [
+				{
+					"name": "Загрузка файла",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json(); \r",
+									"pm.environment.set(\"mess\", responseJson.message); \r",
+									" \r",
+									"let complite = \"Успешная загрузка файлов\"; \r",
+									"const artr = Array.from(responseJson); \r",
+									" \r",
+									"if(pm.environment.get(\"mess\")===\"Login failed\"){ \r",
+									"    pm.test(\"Пользователь не авторизирован\"); \r",
+									"}else{ \r",
+									"        artr.forEach(el => { \r",
+									"            if (el.message === \"File not loaded\"){ \r",
+									"                complite = (\"Недопустимый формат или превышен лимит(2мб)\") \r",
+									"            } \r",
+									"        }); \r",
+									"    pm.test(complite) \r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files[]",
+									"type": "file",
+									"src": "/C:/Users/vasyu/Desktop/2. Тестирование API.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}files",
+							"host": [
+								"{{host}}files"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Редактирование файла",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json(); \r",
+							"pm.environment.set(\"message\", responseJson.message); \r",
+							"pm.environment.set(\"name\", responseJson.message.name); \r",
+							" \r",
+							"switch(pm.environment.get(\"message\")){ \r",
+							"    case \"Login failed\":  \r",
+							"        pm.test(\"Пользователь не авторизирован\"); \r",
+							"        break; \r",
+							"    case \"Not found\": \r",
+							"        pm.test(\"Такого файла нет\"); \r",
+							"        break; \r",
+							"    case \"Forbidden for you\":  \r",
+							"        pm.test(\"Вы не владелец файла\"); \r",
+							"        break; \r",
+							"    case \"Renamed\":  \r",
+							"        pm.test(\"успешное редактирование файла\"); \r",
+							"        break; \r",
+							" \r",
+							"} \r",
+							"if(pm.environment.get(\"name\")){ \r",
+							"    switch(pm.environment.get(\"name\")[0]){ \r",
+							"    case \"This name is already taken\": \r",
+							"        pm.test(\"Файл с таким именем уже есть\"); \r",
+							"        break; \r",
+							"    case \"The name field is required.\": \r",
+							"        pm.test(\"Введите имя файла\"); \r",
+							"        break; \r",
+							"} \r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"name\": \"Файл.jpg\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}files/4ABwVjW6MT",
+					"host": [
+						"{{host}}files"
+					],
+					"path": [
+						"4ABwVjW6MT"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Скачивание файла",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.environment.set(\"message\" , responseJson.message);\r",
+							"\r",
+							"switch(pm.environment.get(\"message\")){\r",
+							"    case \"Login failed\":\r",
+							"        pm.test(\"Пользователь не авторизирован\");\r",
+							"        break;\r",
+							"    case \"Not Found\":\r",
+							"        pm.test(\"Такого файла или пользователя не существует\");\r",
+							"        break;\r",
+							"    case \"Forbidden fot you\":\r",
+							"        pm.test(\"Вы не являетесь влальцем\");\r",
+							"        break;\r",
+							"    default:\r",
+							"        pm.test(\"Файл упешно добавлен\");\r",
+							"        break;\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}files/yR6KzJy2eR",
+					"host": [
+						"{{host}}files"
+					],
+					"path": [
+						"yR6KzJy2eR"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удаление файла",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.environment.set(\"message\" , responseJson.message);\r",
+							"\r",
+							"switch(pm.environment.get(\"message\")){\r",
+							"    case \"Login failed\":\r",
+							"        pm.test(\"Пользователь не авторизирован\");\r",
+							"        break;\r",
+							"    case \"Not Found\":\r",
+							"        pm.test(\"Такого файла нет\");\r",
+							"        break;\r",
+							"    case \"Forbidden for you\":\r",
+							"        pm.test(\"Вы не являетесь влальцем\");\r",
+							"        break;\r",
+							"    default:\r",
+							"        pm.test(\"Файл упешно удален\");\r",
+							"        break;\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}files/yR6KzJy2e",
+					"host": [
+						"{{host}}files"
+					],
+					"path": [
+						"yR6KzJy2e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удаление прав",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.environment.set(\"message\" , responseJson.message);\r",
+							"\r",
+							"switch(pm.environment.get(\"message\")){\r",
+							"    case \"Login failed\":\r",
+							"        pm.test(\"Пользователь не авторизирован\");\r",
+							"        break;\r",
+							"    case \"Not Found\":\r",
+							"        pm.test(\"Такого файла или пользователя не существует\");\r",
+							"        break;\r",
+							"    case \"Forbidden for you\":\r",
+							"        pm.test(\"Вы не являетесь владельцем\");\r",
+							"        break;\r",
+							"    default:\r",
+							"        pm.test(\"Права файла удалены\");\r",
+							"        break;\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"email\": \"admin@admin.ru\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}files/yR6KzJy2eR/accesses",
+					"host": [
+						"{{host}}files"
+					],
+					"path": [
+						"yR6KzJy2eR",
+						"accesses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Копирование файла",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json(); \r",
+							"pm.environment.set(\"mess\", responseJson.message); \r",
+							" \r",
+							"let complite = \"Успешная загрузка файлов\"; \r",
+							"const artr = Array.from(responseJson); \r",
+							" \r",
+							"if(pm.environment.get(\"mess\")===\"Login failed\"){ \r",
+							"    pm.test(\"Пользователь не авторизирован\"); \r",
+							"}else{ \r",
+							"        artr.forEach(el => { \r",
+							"            if (el.message === \"File not loaded\"){ \r",
+							"                complite = (\"Недопустимый формат или превышен лимит(2мб)\") \r",
+							"            } \r",
+							"        }); \r",
+							"    pm.test(complite) \r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files[]",
+							"type": "file",
+							"src": "/C:/Users/vasyu/Desktop/2. Тестирование API.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{host}}files",
+					"host": [
+						"{{host}}files"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Просмотр файла",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json(); \r",
+							"pm.environment.set(\"message\", responseJson.message); \r",
+							" \r",
+							"if(pm.environment.get(\"message\")===\"Login failed\"){ \r",
+							"   pm.test(\"Вы не авторизированы\"); \r",
+							"}else{(pm.test(\"Успешное чтение файлов в диске\"))};"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}files/disk",
+					"host": [
+						"{{host}}files"
+					],
+					"path": [
+						"disk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Чтение файла с правами",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json(); \r",
+							"pm.environment.set(\"message\", responseJson.message); \r",
+							" \r",
+							"if(pm.environment.get(\"message\")===\"Login failed\"){ \r",
+							"   pm.test(\"Вы не авторизированы\"); \r",
+							"}else{(pm.test(\"Успешное чтение файлов c правами доступа\"))};"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{host}}files/shared",
+					"host": [
+						"{{host}}files"
+					],
+					"path": [
+						"shared"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Выход",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json(); \r",
+							"pm.environment.set(\"message\", responseJson.message); \r",
+							" \r",
+							"if(pm.environment.get(\"message\")===\"Login failed\"){ \r",
+							"   pm.test(\"Вы не авторизированы\"); \r",
+							"}else{(pm.test(\"Успешный выход\"))};"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}logout",
+					"host": [
+						"{{host}}logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
